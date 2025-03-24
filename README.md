@@ -151,4 +151,3 @@ To navigate to the `examples` directory and find examples for each supported boa
 2. Inside the `examples` directory, you will find subdirectories for each supported board (e.g., `halocode`, `megapi`, `mcore`, etc.).
 3. Open the subdirectory corresponding to the board you are using.
 4. Inside the subdirectory, you will find various example scripts demonstrating how to use the Makeblock library with that board.
-
