@@ -1,8 +1,12 @@
+import makeblock
 from makeblock.boards import Neuron
 from time import sleep
 
+# Add the COM port
+makeblock.add_port("COM3")
+
 # Connect to the Neuron board
-board = Neuron.connect("COM3")
+board = Neuron.connect()
 
 # Set the color of the LED to red
 board.set_color(255, 0, 0)

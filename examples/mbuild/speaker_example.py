@@ -1,7 +1,11 @@
+import makeblock
 from makeblock.boards import mBuild
 
+# Add the COM port
+makeblock.add_port("COM3")
+
 # Connect to the mBuild board
-board = mBuild.connect("COM3")
+board = mBuild.connect()
 
 # Play a sound using the speaker module
 speaker = board.speaker(1)

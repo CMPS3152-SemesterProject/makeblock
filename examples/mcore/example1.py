@@ -1,7 +1,11 @@
+import makeblock
 from makeblock.boards import mcore
 
+# Add the COM port
+makeblock.add_port("COM3")
+
 # Connect to the mCore board
-board = mcore.connect("COM3")
+board = mcore.connect()
 
 # Read sensor data from the light sensor
 def read_light_sensor():

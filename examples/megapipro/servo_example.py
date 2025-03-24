@@ -1,9 +1,13 @@
+import makeblock
 from makeblock.boards import MegaPiPro
 from makeblock.comm import SerialPort
 
+# Add the COM port
+makeblock.add_port("COM3")
+
 # Connect to the MegaPiPro board
-uart = SerialPort.connect("COM3")
-board = MegaPiPro.connect(uart)
+uart = SerialPort.connect()
+board = MegaPiPro.connect()
 
 # Control a servo motor
 servo = board.servo(1)
