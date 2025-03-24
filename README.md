@@ -124,3 +124,31 @@ The `makeblock.modules` module provides support for various Makeblock modules, i
 - `Humiture`
 - `ExtDCMotor`
 - `SmartServo`
+
+## Examples Directory
+
+The `examples` directory contains various examples for each supported board. These examples demonstrate how to use the Makeblock library to interact with different boards and modules.
+
+### Available Examples
+
+- `halocode`: Examples for the Halocode board.
+- `megapi`: Examples for the MegaPi board.
+- `mcore`: Examples for the mCore board.
+- `meauriga`: Examples for the MeAuriga board.
+- `neuron`: Examples for the Neuron board.
+- `megapipro`: Examples for the MegaPiPro board.
+- `meorion`: Examples for the MeOrion board.
+- `mbuild`: Examples for the mBuild board.
+- `codey`: Examples for the Codey board.
+- `cyberpi`: Examples for the CyberPi board.
+- `rj25n`: Examples for the RJ25N board.
+
+### Navigating the Examples
+
+To navigate to the `examples` directory and find examples for each supported board, follow these steps:
+
+1. Open the `examples` directory.
+2. Inside the `examples` directory, you will find subdirectories for each supported board (e.g., `halocode`, `megapi`, `mcore`, etc.).
+3. Open the subdirectory corresponding to the board you are using.
+4. Inside the subdirectory, you will find various example scripts demonstrating how to use the Makeblock library with that board.
+
