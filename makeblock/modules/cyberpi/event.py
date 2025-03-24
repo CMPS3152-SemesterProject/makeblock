@@ -1,7 +1,7 @@
 from makeblock.modules.cyberpi import event_manager 
 
 module_obj = None
-def set_mdoule_obj(module):
+def set_module_obj(module):
     global module_obj
     module_obj = module
 
