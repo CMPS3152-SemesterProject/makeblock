@@ -1,8 +1,8 @@
 Metadata-Version: 2.2
 Name: makeblock
-Version: 0.1.8
-Summary: libraries for makeblock electronic platform
+Version: 0.2.0
+Summary: Fork of libraries for makeblock electronic platform
 Home-page: https://makeblock.com
-Author: makeblock
-Author-email: flashindream@gmail.com
+Author: makeblock / alexdev404
+Author-email: flashindream@gmail.com, rexydogwoof01@gmail.com
 Requires-Dist: pyserials
