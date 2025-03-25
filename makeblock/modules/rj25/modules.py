@@ -1060,7 +1060,7 @@ class LineFollower(_BaseModule):
         """
         port = port or self._pack.port
         res = super().read([port], callback)
-        if len(res) > 1:
+        if res is not None and len(res) > 1:
             return res[1]
         return -1
 
