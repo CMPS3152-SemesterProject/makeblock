@@ -25,7 +25,8 @@ def __exiting(signal, frame):
     global _threads
     print("exiting")
     for port in _ports:
-        port.exit()
+        if not isinstance(port, str):
+            port.exit()
     for thread in _threads:
         thread.exit()
     sys.exit(0)
