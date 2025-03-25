@@ -28,11 +28,9 @@ class __CyberPi(_BaseBoard):
             self.module_auto = BaseModuleAuto(self)
             api_cyberpi_api.module_auto = self.module_auto
             self.api = api_cyberpi_api
-            api_cyberpi_api.autoconnect()
         else:
             api_cyberpi_api.board = self
             self.api = api_cyberpi_api
-            api_cyberpi_api.autoconnect()
             
     def setTransferMode(self):
         # pack = HalocodePackData()
