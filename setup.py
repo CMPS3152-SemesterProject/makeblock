@@ -14,11 +14,11 @@ for path,dir_list,file_list in os.walk("./makeblock"):
 # print(dirs,modules)
 setup(
     name='makeblock',
-    version='0.1.8',
+    version='0.2.0',
     author='makeblock',
-    author_email='flashindream@gmail.com',
+    author_email='flashindream@gmail.com, rexydogwoof01@gmail.com',
     url='https://makeblock.com',
-    description=u'libraries for makeblock electronic platform',
+    description=u'Fork of libraries for makeblock electronic platform',
     packages=dirs,
     py_modules=modules,
     install_requires=['pyserial'],
