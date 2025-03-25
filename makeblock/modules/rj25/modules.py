@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*
 from makeblock.utils import *
 from makeblock.protocols.PackData import MegaPiPackData
-from time import sleep,time
-class _BaseModule:
-    def __init__(self,board,port=0,slot=0,type=0):
-        self.setup(board,port,slot,type)
+from time import sleep, time
 
-    def setup(self,board,port=0,slot=0,type=0):
+
+class _BaseModule:
+    def __init__(self, board, port=0, slot=0, type=0):
+        self.setup(board, port, slot, type)
+
+    def setup(self, board, port=0, slot=0, type=0):
         board._autoconnect()
         self._callback = None
         self._is_received = False
@@ -21,14 +23,14 @@ class _BaseModule:
     def _init_module(self):
         pass
 
-    def request(self,pack):
+    def request(self, pack):
         self._board.remove_response(pack)
         self._board.request(pack)
 
-    def call(self,pack):
+    def call(self, pack):
         self._board.call(pack)
 
-    def _run_callback(self,value):
+    def _run_callback(self, value):
         if not self._callback is None:
             self._callback(value)
 
@@ -36,8 +38,8 @@ class _BaseModule:
         self._pack.data = pack.data
         self._is_received = True
 
-    def read(self,data,callback=None):
-        if time()-self._last_time>0.01:
+    def read(self, data, callback=None):
+        if time() - self._last_time > 0.01:
             self._last_time = time()
         else:
             return []
@@ -49,11 +51,12 @@ class _BaseModule:
         if callback is None:
             timeout = 100
             while not self._is_received:
-                timeout-=1
+                timeout -= 1
                 sleep(0.001)
-                if timeout<0:
+                if timeout < 0:
                     break
             return self._pack.data
+
 
 class Servo(_BaseModule):
     """
@@ -81,11 +84,12 @@ class Servo(_BaseModule):
             servo = Servo(board,PORT6,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x0B
-    
-    def set_angle(self,angle,port=0,slot=0):
+
+    def set_angle(self, angle, port=0, slot=0):
         """
             set_angle
 
@@ -106,8 +110,9 @@ class Servo(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        self._pack.data = [port, slot ,angle]
+        self._pack.data = [port, slot, angle]
         self.call(self._pack)
+
 
 class DCMotor(_BaseModule):
     """
@@ -141,10 +146,11 @@ class DCMotor(_BaseModule):
             dcmotor = DCMotor(board,PORT1,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
 
-    def run(self,speed,port=0,slot=0):
+    def run(self, speed, port=0, slot=0):
         """
             :description: motor run with speed
 
@@ -167,14 +173,15 @@ class DCMotor(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        if port<9:
+        if port < 9:
             self._pack.module = 0x0A
             self._pack.data = [port + (slot - 1) * 8]
         else:
             self._pack.module = 0x41
             self._pack.data = [port]
-        self._pack.data.extend(short2bytes(int(speed*2.55)))
+        self._pack.data.extend(short2bytes(int(speed * 2.55)))
         self.call(self._pack)
+
 
 class StepperMotor(_BaseModule):
     """
@@ -200,15 +207,16 @@ class StepperMotor(_BaseModule):
             stepper = StepperMotor(board,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x4C
         self._pack.on_response = self._on_parse
 
-    def _on_parse(self,pack):
+    def _on_parse(self, pack):
         self._callback(pack.data[0])
 
-    def move_to(self,position,speed,callback,port=0):
+    def move_to(self, position, speed, callback, port=0):
         """
             :description: move to position with speed
 
@@ -233,12 +241,12 @@ class StepperMotor(_BaseModule):
         """
         self._callback = callback
         port = port or self._pack.port
-        self._pack.data = [0x6,port]
+        self._pack.data = [0x6, port]
         self._pack.data.extend(long2bytes(position))
         self._pack.data.extend(short2bytes(speed))
         super().request(self._pack)
 
-    def run(self,speed,port=0):
+    def run(self, speed, port=0):
         """
             :description: run with speed
 
@@ -247,18 +255,19 @@ class StepperMotor(_BaseModule):
             
         """
         port = port or self._pack.port
-        self._pack.data = [0x2,port]
+        self._pack.data = [0x2, port]
         self._pack.data.extend(short2bytes(speed))
         super().call(self._pack)
 
-    def set_home(self,port=0):
+    def set_home(self, port=0):
         """
             :description: set position to zero
             
         """
         port = port or self._pack.port
-        self._pack.data = [0x4,port]
+        self._pack.data = [0x4, port]
         super().call(self._pack)
+
 
 class EncoderMotor(_BaseModule):
     """
@@ -282,15 +291,16 @@ class EncoderMotor(_BaseModule):
             encoder = EncoderMotor(board,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x3E
         self._pack.on_response = self._on_parse
 
-    def _on_parse(self,pack):
+    def _on_parse(self, pack):
         self._callback(pack.data[0])
 
-    def move_to(self,position,speed,callback,port=0):
+    def move_to(self, position, speed, callback, port=0):
         """
             :description: move to position with speed
 
@@ -315,12 +325,12 @@ class EncoderMotor(_BaseModule):
         """
         self._callback = callback
         port = port or self._pack.port
-        self._pack.data = [0x6,port]
+        self._pack.data = [0x6, port]
         self._pack.data.extend(long2bytes(position))
         self._pack.data.extend(short2bytes(speed))
         super().request(self._pack)
 
-    def run(self,speed,port=0):
+    def run(self, speed, port=0):
         """
             :description: run with speed
 
@@ -329,18 +339,19 @@ class EncoderMotor(_BaseModule):
             
         """
         port = port or self._pack.port
-        self._pack.data = [0x2,port]
+        self._pack.data = [0x2, port]
         self._pack.data.extend(short2bytes(speed))
         super().call(self._pack)
 
-    def set_home(self,port):
+    def set_home(self, port):
         """
             :description: set position to zero
             
         """
         port = port or self._pack.port
-        self._pack.data = [0x4,port]
+        self._pack.data = [0x4, port]
         super().call(self._pack)
+
 
 class SmartServo(_BaseModule):
     """
@@ -357,49 +368,49 @@ class SmartServo(_BaseModule):
             smartservo = SmartServo(board)
 
     """
+
     def _init_module(self):
-        
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x40
 
-    def set_led(self,idx,red,green,blue,port=0):
+    def set_led(self, idx, red, green, blue, port=0):
         port = port or self._pack.port
-        self._pack.data = [2,port,idx,red,green,blue]
+        self._pack.data = [2, port, idx, red, green, blue]
         self.call(self._pack)
 
-    def move_to(self,idx,position,speed,port=0):
+    def move_to(self, idx, position, speed, port=0):
         port = port or self._pack.port
-        self._pack.data = [4,port,idx]
+        self._pack.data = [4, port, idx]
         self._pack.data.extend(long2bytes(position))
         self._pack.data.extend(float2bytes(speed))
         self.call(self._pack)
 
-    def move(self,idx,position,speed,port=0):
+    def move(self, idx, position, speed, port=0):
         port = port or self._pack.port
-        self._pack.data = [5,port,idx]
+        self._pack.data = [5, port, idx]
         self._pack.data.extend(long2bytes(position))
         self._pack.data.extend(float2bytes(speed))
         self.call(self._pack)
 
-    def set_zero(self,idx,port=0):
+    def set_zero(self, idx, port=0):
         port = port or self._pack.port
-        self._pack.data = [7,port,idx]
+        self._pack.data = [7, port, idx]
         self.call(self._pack)
 
-    def run(self,idx,pwm,port=0):
+    def run(self, idx, pwm, port=0):
         port = port or self._pack.port
-        self._pack.data = [6,port,idx]
+        self._pack.data = [6, port, idx]
         self._pack.data.extend(short2bytes(pwm))
         self.call(self._pack)
 
-    def set_break(self,idx,status,port=0):
+    def set_break(self, idx, status, port=0):
         port = port or self._pack.port
-        self._pack.data = [1,port,idx,status]
+        self._pack.data = [1, port, idx, status]
         self.call(self._pack)
 
-    def set_init(self,idx,port):
+    def set_init(self, idx, port):
         port = port or self._pack.port
-        self._pack.data = [8,port,idx]
+        self._pack.data = [8, port, idx]
         self.call(self._pack)
 
 
@@ -408,22 +419,24 @@ class BLDCMotor(_BaseModule):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x44
 
-    def run(self,pwm,port=0):
+    def run(self, pwm, port=0):
         port = port or self._pack.port
-        self._pack.data = [2,port,pwm]
+        self._pack.data = [2, port, pwm]
         self.call(self._pack)
+
 
 class Buzzer(_BaseModule):
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x22
 
-    def set_tone(self,hz,ms=0,port=0):
+    def set_tone(self, hz, ms=0, port=0):
         port = port or self._pack.port
         self._pack.data = [port]
         self._pack.data.extend(short2bytes(hz))
         self._pack.data.extend(short2bytes(ms))
         self.call(self._pack)
+
 
 class RGBLed(_BaseModule):
     """
@@ -450,11 +463,12 @@ class RGBLed(_BaseModule):
             rgbled = RGBLed(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x08
 
-    def set_color(self,index,red,green,blue,port=0,slot=0):
+    def set_color(self, index, red, green, blue, port=0, slot=0):
         """
             :description: set color for led
 
@@ -482,10 +496,10 @@ class RGBLed(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        self._pack.data = [port,slot,index,red,green,blue]
+        self._pack.data = [port, slot, index, red, green, blue]
         self.call(self._pack)
 
-    def set_colors(self,pixels,port=0,slot=0):
+    def set_colors(self, pixels, port=0, slot=0):
         """
             :description: set colors for all leds
 
@@ -494,28 +508,29 @@ class RGBLed(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        if port>61:
-            if port==62:
+        if port > 61:
+            if port == 62:
                 port = 6
                 slot = 1
-            if port==63:
+            if port == 63:
                 port = 6
                 slot = 2
-            if port==64:
+            if port == 64:
                 port = 7
                 slot = 1
-            if port==65:
+            if port == 65:
                 port = 7
                 slot = 2
-            if port==66:
+            if port == 66:
                 port = 8
                 slot = 1
-            if port==67:
+            if port == 67:
                 port = 8
                 slot = 2
-        self._pack.data = [port,slot,0]
+        self._pack.data = [port, slot, 0]
         self._pack.data.extend(pixels)
         self.call(self._pack)
+
 
 class SevenSegmentDisplay(_BaseModule):
     """
@@ -538,11 +553,12 @@ class SevenSegmentDisplay(_BaseModule):
             sevseg = SevenSegmentDisplay(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x9
 
-    def set_number(self,number,port=0):
+    def set_number(self, number, port=0):
         """
             :description: display number
 
@@ -568,6 +584,7 @@ class SevenSegmentDisplay(_BaseModule):
         self._pack.data.extend(float2bytes(number))
         self.call(self._pack)
 
+
 class LedMatrix(_BaseModule):
     """
         :description: LED Matrix Display - |ledmatrix_more_info|
@@ -589,11 +606,12 @@ class LedMatrix(_BaseModule):
             ledmatrix = LedMatrix(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x29
 
-    def set_string(self,msg,x=0,y=0,port=0):
+    def set_string(self, msg, x=0, y=0, port=0):
         """
             :description: display string
 
@@ -613,11 +631,11 @@ class LedMatrix(_BaseModule):
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,1,int2uint(x),int2uint(8-y),len(msg)]
+        self._pack.data = [port, 1, int2uint(x), int2uint(8 - y), len(msg)]
         self._pack.data.extend(string2bytes(msg))
         self.call(self._pack)
 
-    def set_pixels(self,pixels,port=0):
+    def set_pixels(self, pixels, port=0):
         """
             :description: show leds by pixels
 
@@ -637,11 +655,11 @@ class LedMatrix(_BaseModule):
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,2,0,0]
+        self._pack.data = [port, 2, 0, 0]
         self._pack.data.extend(pixels)
         self.call(self._pack)
 
-    def set_time(self,hours,minutes,colon=1,port=0):
+    def set_time(self, hours, minutes, colon=1, port=0):
         """
             :description: show time
 
@@ -665,10 +683,10 @@ class LedMatrix(_BaseModule):
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,3,colon,hours,minutes]
+        self._pack.data = [port, 3, colon, hours, minutes]
         self.call(self._pack)
 
-    def set_number(self,number,port=0):
+    def set_number(self, number, port=0):
         """
             :description: show number
 
@@ -690,9 +708,10 @@ class LedMatrix(_BaseModule):
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,4]
+        self._pack.data = [port, 4]
         self._pack.data.extend(float2bytes(number))
         self.call(self._pack)
+
 
 class DSLRShutter(_BaseModule):
     """
@@ -715,11 +734,12 @@ class DSLRShutter(_BaseModule):
             shutter = DSLRShutter(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_RUN
         self._pack.module = 0x14
 
-    def turn_on(self,port=0):
+    def turn_on(self, port=0):
         """
             :description: turn on
 
@@ -736,17 +756,18 @@ class DSLRShutter(_BaseModule):
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,1]
+        self._pack.data = [port, 1]
         self.call(self._pack)
 
-    def turn_off(self,port=0):
+    def turn_off(self, port=0):
         """
             :description: turn off
 
         """
         port = port or self._pack.port
-        self._pack.data = [port,2]
+        self._pack.data = [port, 2]
         self.call(self._pack)
+
 
 class InfraredReceiver(_BaseModule):
     """
@@ -769,6 +790,7 @@ class InfraredReceiver(_BaseModule):
             ir = InfraredReceiver(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x10
@@ -776,9 +798,9 @@ class InfraredReceiver(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read ir code
 
@@ -799,10 +821,11 @@ class InfraredReceiver(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>3:
-            return bytes2float(res,1)
+        res = super().read([port], callback)
+        if len(res) > 3:
+            return bytes2float(res, 1)
         return 0
+
 
 class Ultrasonic(_BaseModule):
     """
@@ -825,6 +848,7 @@ class Ultrasonic(_BaseModule):
             us = Ultrasonic(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x01
@@ -832,9 +856,9 @@ class Ultrasonic(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data,1))))
+        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data, 1))))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read distance asynchronously
 
@@ -855,13 +879,14 @@ class Ultrasonic(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>4:
-            return float('{0:.1f}'.format(bytes2float(res,1)))
+        res = super().read([port], callback)
+        if res is not None and len(res) > 4:
+            return float('{0:.1f}'.format(bytes2float(res, 1)))
         return 0.0
 
-    def get_distance(self,port):
-        return self.read(None,port)
+    def get_distance(self, port):
+        return self.read(None, port)
+
 
 class Button(_BaseModule):
     """
@@ -884,6 +909,7 @@ class Button(_BaseModule):
             button = Button(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x16
@@ -893,7 +919,7 @@ class Button(_BaseModule):
         super()._on_parse(pack)
         super()._run_callback(pack.data[1])
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read pressed key code asynchronously
 
@@ -914,10 +940,11 @@ class Button(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port,0],callback)
-        if len(res)>1:
+        res = super().read([port, 0], callback)
+        if len(res) > 1:
             return res[1]
         return 0
+
 
 class ButtonOnBoard(_BaseModule):
     """
@@ -940,6 +967,7 @@ class ButtonOnBoard(_BaseModule):
             button = Button(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x23
@@ -947,10 +975,10 @@ class ButtonOnBoard(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        if len(pack.data)>0:
-            super()._run_callback(pack.data[1]==1)
+        if len(pack.data) > 0:
+            super()._run_callback(pack.data[1] == 1)
 
-    def read(self,callback=None):
+    def read(self, callback=None):
         """
             :description: read pressed key code asynchronously
 
@@ -970,14 +998,15 @@ class ButtonOnBoard(_BaseModule):
                     sleep(1)
 
         """
-        super().read([7,0],callback)
-        if len(self._pack.data)>1:
-            return self._pack.data[1]==1
+        super().read([7, 0], callback)
+        if len(self._pack.data) > 1:
+            return self._pack.data[1] == 1
         return False
 
     def is_pressed(self):
         return self.read()
-        
+
+
 class LineFollower(_BaseModule):
     """
         :description: LineFollower - |linefollower_more_info|
@@ -999,6 +1028,7 @@ class LineFollower(_BaseModule):
             linefollower = LineFollower(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x11
@@ -1006,9 +1036,9 @@ class LineFollower(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read linefollower status asynchronously
 
@@ -1029,13 +1059,14 @@ class LineFollower(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>1:
+        res = super().read([port], callback)
+        if len(res) > 1:
             return res[1]
         return -1
 
-    def get_status(self,port=0):
-        return self.read(None,port)
+    def get_status(self, port=0):
+        return self.read(None, port)
+
 
 class LimitSwitch(_BaseModule):
     """
@@ -1061,6 +1092,7 @@ class LimitSwitch(_BaseModule):
             limitswitch = LimitSwitch(board,PORT6,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x15
@@ -1068,9 +1100,9 @@ class LimitSwitch(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse()
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0,slot=0):
+    def read(self, callback, port=0, slot=0):
         """
             :description: read limitswitch status asynchronously
 
@@ -1092,13 +1124,14 @@ class LimitSwitch(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        res = super().read([port,slot],callback)
-        if len(res)>1:
+        res = super().read([port, slot], callback)
+        if len(res) > 1:
             return res[1]
         return False
-    
-    def get_status(self,port=0,slot=0):
-        return self.read(None,port,slot)
+
+    def get_status(self, port=0, slot=0):
+        return self.read(None, port, slot)
+
 
 class PIRMotion(_BaseModule):
     """
@@ -1121,6 +1154,7 @@ class PIRMotion(_BaseModule):
             pir = PIRMotion(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x0F
@@ -1128,9 +1162,9 @@ class PIRMotion(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read pirmotion status asynchronously
 
@@ -1151,13 +1185,14 @@ class PIRMotion(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>1:
+        res = super().read([port], callback)
+        if len(res) > 1:
             return res[1]
         return 0
-    
-    def get_status(self,port=0):
-        return self.read(None,port)
+
+    def get_status(self, port=0):
+        return self.read(None, port)
+
 
 class Light(_BaseModule):
     """
@@ -1180,6 +1215,7 @@ class Light(_BaseModule):
             light = Light(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x03
@@ -1187,9 +1223,9 @@ class Light(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read brightness asynchronously
 
@@ -1210,13 +1246,14 @@ class Light(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port,2],callback)
-        if len(res)>4:
-            return int(bytes2float(res,1))
+        res = super().read([port, 2], callback)
+        if len(res) > 4:
+            return int(bytes2float(res, 1))
         return 0
 
-    def get_lightness(self,port):
-        return self.read(None,port)
+    def get_lightness(self, port):
+        return self.read(None, port)
+
 
 class Sound(_BaseModule):
     """
@@ -1239,6 +1276,7 @@ class Sound(_BaseModule):
             sound = Sound(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x07
@@ -1246,9 +1284,9 @@ class Sound(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read loudness asynchronously
 
@@ -1269,10 +1307,11 @@ class Sound(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>4:
-            return bytes2float(res,1)
+        res = super().read([port], callback)
+        if len(res) > 4:
+            return bytes2float(res, 1)
         return 0.0
+
 
 class Potentiometer(_BaseModule):
     """
@@ -1295,6 +1334,7 @@ class Potentiometer(_BaseModule):
             potentiometer = Potentiometer(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x04
@@ -1302,9 +1342,9 @@ class Potentiometer(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read potentiometer asynchronously
 
@@ -1325,10 +1365,11 @@ class Potentiometer(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>4:
-            return bytes2float(res,1)
+        res = super().read([port], callback)
+        if len(res) > 4:
+            return bytes2float(res, 1)
         return 0.0
+
 
 class Joystick(_BaseModule):
     """
@@ -1351,27 +1392,28 @@ class Joystick(_BaseModule):
             joystick = Joystick(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x05
         self._pack.on_response = self._on_parse
         self._pos = {
-            'x':0,
-            'y':0
+            'x': 0,
+            'y': 0
         }
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2short(pack.data,1))
+        super()._run_callback(bytes2short(pack.data, 1))
 
-    def run(self,left,right):
+    def run(self, left, right):
         pack = MegaPiPackData()
         pack.action = MegaPiPackData.ACTION_RUN
         pack.module = 0x05
         pack.data = short2bytes(left).extend(short2bytes(right))
         super().call(pack)
 
-    def read(self,callback,port=0,slot=0):
+    def read(self, callback, port=0, slot=0):
         """
             :description: read joystick data asynchronously
 
@@ -1393,17 +1435,18 @@ class Joystick(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        res = super().read([port,slot],callback)
-        if len(res)>4:
-            return bytes2float(res,1)
+        res = super().read([port, slot], callback)
+        if len(res) > 4:
+            return bytes2float(res, 1)
         return 0.0
 
-    def get_x(self,port=0):
-        return self.read(None,port,1)
+    def get_x(self, port=0):
+        return self.read(None, port, 1)
 
-    def get_y(self,port=0):
-        return self.read(None,port,2)
-        
+    def get_y(self, port=0):
+        return self.read(None, port, 2)
+
+
 class Gyro(_BaseModule):
     """
         :description: Gyro Sensor - |gyro_more_info|
@@ -1423,6 +1466,7 @@ class Gyro(_BaseModule):
             gyro = Gyro(board)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x06
@@ -1430,10 +1474,10 @@ class Gyro(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        if len(pack.data)>4:
-            super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data,1))))
+        if len(pack.data) > 4:
+            super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data, 1))))
 
-    def read(self,axis,callback=None):
+    def read(self, axis, callback=None):
         """
             :description: read gyro data asynchronously
 
@@ -1453,20 +1497,21 @@ class Gyro(_BaseModule):
                     sleep(1)
 
         """
-        res = super().read([self._pack.port,axis],callback)
-        if len(res)>4:
-            return float('{0:.1f}'.format(bytes2float(res,1)))
+        res = super().read([self._pack.port, axis], callback)
+        if len(res) > 4:
+            return float('{0:.1f}'.format(bytes2float(res, 1)))
         return 0.0
 
-    def get_x(self,callback):
-        return self.read(1,callback)
+    def get_x(self, callback):
+        return self.read(1, callback)
 
-    def get_y(self,callback):
-        return self.read(2,callback)
-        
-    def get_z(self,callback):
-        return self.read(3,callback)
-        
+    def get_y(self, callback):
+        return self.read(2, callback)
+
+    def get_z(self, callback):
+        return self.read(3, callback)
+
+
 class Compass(_BaseModule):
     """
         :description: Compass Sensor - |compass_more_info|
@@ -1488,6 +1533,7 @@ class Compass(_BaseModule):
             compass = Compass(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x1A
@@ -1495,9 +1541,9 @@ class Compass(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data,1))))
+        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data, 1))))
 
-    def read(self,callback):
+    def read(self, callback):
         """
             :description: read compass data asynchronously
 
@@ -1517,13 +1563,14 @@ class Compass(_BaseModule):
                     sleep(1)
 
         """
-        res = super().read([],callback)
-        if len(res)>4:
-            return float('{0:.1f}'.format(bytes2float(res,1)))
+        res = super().read([], callback)
+        if len(res) > 4:
+            return float('{0:.1f}'.format(bytes2float(res, 1)))
         return 0.0
 
     def get_heading(self):
         return self.read(None)
+
 
 class Temperature(_BaseModule):
     """
@@ -1549,6 +1596,7 @@ class Temperature(_BaseModule):
             temp = Temperature(board,PORT6,SLOT1)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x02
@@ -1556,9 +1604,9 @@ class Temperature(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data,1))))
+        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data, 1))))
 
-    def read(self,callback,port=0,slot=0):
+    def read(self, callback, port=0, slot=0):
         """
             :description: read temperature asynchronously
 
@@ -1580,13 +1628,14 @@ class Temperature(_BaseModule):
         """
         port = port or self._pack.port
         slot = slot or self._pack.slot
-        res = super().read([port,slot],callback)
-        if len(res)>4:
-            return float('{0:.1f}'.format(bytes2float(res,1)))
+        res = super().read([port, slot], callback)
+        if len(res) > 4:
+            return float('{0:.1f}'.format(bytes2float(res, 1)))
         return 0.0
 
-    def get_temperature(self,port=0,slot=0):
-        return self.read(None,port,slot)
+    def get_temperature(self, port=0, slot=0):
+        return self.read(None, port, slot)
+
 
 class TemperatureOnBoard(_BaseModule):
     def _init_module(self):
@@ -1596,17 +1645,18 @@ class TemperatureOnBoard(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data,1))))
+        super()._run_callback(float('{0:.1f}'.format(bytes2float(pack.data, 1))))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>4:
-            return float('{0:.1f}'.format(bytes2float(res,1)))
+        res = super().read([port], callback)
+        if len(res) > 4:
+            return float('{0:.1f}'.format(bytes2float(res, 1)))
         return 0.0
 
-    def get_temperature(self,port=0):
-        return self.read(None,port)
+    def get_temperature(self, port=0):
+        return self.read(None, port)
+
 
 class Humiture(_BaseModule):
     """
@@ -1629,6 +1679,7 @@ class Humiture(_BaseModule):
             humiture = Humiture(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x17
@@ -1638,7 +1689,7 @@ class Humiture(_BaseModule):
         super()._on_parse(pack)
         super()._run_callback(pack.data[1])
 
-    def read(self,type,callback,port=0):
+    def read(self, type, callback, port=0):
         """
             :description: read humiture and temperature asynchronously
 
@@ -1659,16 +1710,17 @@ class Humiture(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port,type],callback)
-        if len(res)>1:
+        res = super().read([port, type], callback)
+        if len(res) > 1:
             return res[1]
         return 0
 
-    def get_humidity(self,port):
-        return self.read(0,None,port)
+    def get_humidity(self, port):
+        return self.read(0, None, port)
 
-    def get_temperature(self,port):
-        return self.read(1,None,port)
+    def get_temperature(self, port):
+        return self.read(1, None, port)
+
 
 class Flame(_BaseModule):
     """
@@ -1691,6 +1743,7 @@ class Flame(_BaseModule):
             flame = Flame(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x18
@@ -1698,9 +1751,9 @@ class Flame(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2short(pack.data,1))
+        super()._run_callback(bytes2short(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read flame status asynchronously
 
@@ -1721,13 +1774,14 @@ class Flame(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>2:
-            return bytes2short(pack.data,1)
+        res = super().read([port], callback)
+        if len(res) > 2:
+            return bytes2short(pack.data, 1)
         return 0
 
-    def get_level(self,port=0):
-        return self.read(None,port)
+    def get_level(self, port=0):
+        return self.read(None, port)
+
 
 class Gas(_BaseModule):
     """
@@ -1750,6 +1804,7 @@ class Gas(_BaseModule):
             gas = Gas(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x19
@@ -1757,9 +1812,9 @@ class Gas(_BaseModule):
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2short(pack.data,1))
+        super()._run_callback(bytes2short(pack.data, 1))
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read gas status asynchronously
 
@@ -1780,13 +1835,14 @@ class Gas(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>2:
-            return bytes2short(pack.data,1)
+        res = super().read([port], callback)
+        if len(res) > 2:
+            return bytes2short(pack.data, 1)
         return 0
 
-    def get_level(self,port=0):
-        return self.read(None,port)
+    def get_level(self, port=0):
+        return self.read(None, port)
+
 
 class Touch(_BaseModule):
     """
@@ -1809,6 +1865,7 @@ class Touch(_BaseModule):
             touch = Touch(board,PORT6)
 
     """
+
     def _init_module(self):
         self._pack.action = MegaPiPackData.ACTION_GET
         self._pack.module = 0x33
@@ -1818,7 +1875,7 @@ class Touch(_BaseModule):
         super()._on_parse(pack)
         super()._run_callback(pack.data[1])
 
-    def read(self,callback,port=0):
+    def read(self, callback, port=0):
         """
             :description: read touch status asynchronously
 
@@ -1839,13 +1896,14 @@ class Touch(_BaseModule):
 
         """
         port = port or self._pack.port
-        res = super().read([port],callback)
-        if len(res)>1:
+        res = super().read([port], callback)
+        if len(res) > 1:
             return res.data[1]
         return 0
 
-    def get_status(self,port=0):
-        return self.read(None,port)
+    def get_status(self, port=0):
+        return self.read(None, port)
+
 
 class Color(_BaseModule):
     def _init_module(self):
@@ -1856,21 +1914,22 @@ class Color(_BaseModule):
         super()._on_parse(pack)
         super()._run_callback(pack.data[1])
 
-    def read(self,type,callback,port):
+    def read(self, type, callback, port):
         port = port or self._pack.port
-        res = super().read([port,0x1,type],callback)
-        if len(res)>1:
+        res = super().read([port, 0x1, type], callback)
+        if len(res) > 1:
             return res.data[1]
         return 0
 
-    def get_red(self,port=0):
-        return self.read(0,None,port)
+    def get_red(self, port=0):
+        return self.read(0, None, port)
 
-    def get_green(self,port=0):
-        return self.read(1,None,port)
+    def get_green(self, port=0):
+        return self.read(1, None, port)
 
-    def get_blue(self,port=0):
-        return self.read(2,None,port)
+    def get_blue(self, port=0):
+        return self.read(2, None, port)
+
 
 class Pin(_BaseModule):
     """
@@ -1894,14 +1953,15 @@ class Pin(_BaseModule):
     MODE_DIGITAL = 0x1E
     MODE_ANALOG = 0x1F
     MODE_PWM = 0x20
+
     def _init_module(self):
         self._pack.on_response = self._on_parse
 
     def _on_parse(self, pack):
         super()._on_parse(pack)
-        super()._run_callback(bytes2float(pack.data,1))
+        super()._run_callback(bytes2float(pack.data, 1))
 
-    def digital_write(self,pin,level):
+    def digital_write(self, pin, level):
         """
             :description: set digital pin output
 
@@ -1925,10 +1985,10 @@ class Pin(_BaseModule):
         pack = MegaPiPackData()
         pack.module = Pin.MODE_DIGITAL
         pack.action = MegaPiPackData.ACTION_RUN
-        pack.data = [pin,level]
+        pack.data = [pin, level]
         self.call(pack)
 
-    def pwm_write(self,pin,pwm):
+    def pwm_write(self, pin, pwm):
         """
             :description: set pwm pin output
 
@@ -1952,10 +2012,10 @@ class Pin(_BaseModule):
         pack = MegaPiPackData()
         pack.module = Pin.MODE_PWM
         pack.action = MegaPiPackData.ACTION_RUN
-        pack.data = [pin,pwm]
+        pack.data = [pin, pwm]
         self.call(pack)
 
-    def analog_read(self,pin,callback=None):
+    def analog_read(self, pin, callback=None):
         """
             :description: read analog pin status asynchronously
 
@@ -1977,12 +2037,12 @@ class Pin(_BaseModule):
         """
         self._pack.module = Pin.MODE_ANALOG
         self._pack.action = MegaPiPackData.ACTION_GET
-        res = super().read([pin],callback)
-        if res and len(res)>1:
-            return bytes2float(res,1)
+        res = super().read([pin], callback)
+        if res and len(res) > 1:
+            return bytes2float(res, 1)
         return 0
 
-    def digital_read(self,pin,callback=None):
+    def digital_read(self, pin, callback=None):
         """
             :description: read digital pin status asynchronously
 
@@ -2004,26 +2064,27 @@ class Pin(_BaseModule):
         """
         self._pack.module = Pin.MODE_DIGITAL
         self._pack.action = MegaPiPackData.ACTION_GET
-        res = super().read([pin],callback)
-        if res and len(res)>1:
-            return bytes2float(res,1)
+        res = super().read([pin], callback)
+        if res and len(res) > 1:
+            return bytes2float(res, 1)
         return 0
+
 
 class CNC(_BaseModule):
     def _init_module(self):
         pass
 
-    def _on_parse(self,pack):
+    def _on_parse(self, pack):
         pass
 
-    def set_ratio(self,x_ratio,y_ratio,z_ratio):
+    def set_ratio(self, x_ratio, y_ratio, z_ratio):
         pass
 
-    def set_spin(self,power):
+    def set_spin(self, power):
         pass
 
-    def moveTo(self,x_position,y_position,z_position):
+    def moveTo(self, x_position, y_position, z_position):
         pass
 
-    def move(self,x_position,y_position,z_position):
+    def move(self, x_position, y_position, z_position):
         pass
