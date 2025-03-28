@@ -91,7 +91,16 @@ class _BaseBoard:
                         self._dev = device
                         return self.__setup(self._type, self._dev)
                 except TypeError:
-                    raise RuntimeError("\n\nNo VCOM device found. Get one from:\nhttps://github.com/Jakeler/ble-serial")
+                    try:
+                        port = [port[0] for port in SerialPort.list() if port[2] != 'n/a' and port[2].find('COM0COM') >= 0]
+                        if len(port) > 0:
+                            port = port[0]
+                            device = SerialPort(port)
+                            self._dev = device
+                            print("Connected to: ", port)
+                            return self.__setup(self._type, self._dev)
+                    except:
+                        raise RuntimeError("\n\nNo VCOM device found. Get one from:\nhttps://github.com/Jakeler/ble-serial")
 
     def add_thread(self, thread):
         makeblock.add_thread(thread)
