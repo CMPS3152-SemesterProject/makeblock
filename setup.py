@@ -14,7 +14,7 @@ for path,dir_list,file_list in os.walk("./makeblock"):
 # print(dirs,modules)
 setup(
     name='makeblock',
-    version='0.2.0',
+    version='0.3.0',
     author='makeblock',
     author_email='flashindream@gmail.com, rexydogwoof01@gmail.com',
     url='https://makeblock.com',
