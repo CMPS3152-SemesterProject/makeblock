@@ -84,11 +84,14 @@ class _BaseBoard:
                         first_cnc = result.group()
                     else:
                         continue
-                if len(first_cnc) > 0:
-                    print("Connected to: ", first_cnc)
-                    device = SerialPort(first_cnc)
-                    self._dev = device
-                    return self.__setup(self._type, self._dev)
+                try:
+                    if len(first_cnc) > 0:
+                        print("Connected to: ", first_cnc)
+                        device = SerialPort(first_cnc)
+                        self._dev = device
+                        return self.__setup(self._type, self._dev)
+                except TypeError:
+                    raise RuntimeError("\n\nNo VCOM device found. Get one from:\nhttps://github.com/Jakeler/ble-serial")
 
     def add_thread(self, thread):
         makeblock.add_thread(thread)
