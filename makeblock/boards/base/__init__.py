@@ -26,9 +26,11 @@ class _BaseBoard:
 
     def __init__(self, type, device, BLE=False):
         self._device = None
+        self.BLE = BLE
         self.__setup(type, device, BLE)
 
     def __setup(self, type, device, BLE=False):
+        print("Setting up...")
         self._type = type
         self._dev = device
         self.BLE = BLE
@@ -43,6 +45,7 @@ class _BaseBoard:
         self._responses = []
         self._subscribe_responses = []
         self._subscribes = {}
+        print("Ready.")
 
     def _autoconnect(self):
         if self._dev is None:
@@ -78,10 +81,9 @@ class _BaseBoard:
 
                     # Check if a match is found
                     if result:
-                        print(result.group())  # prints the matched string
                         first_cnc = result.group()
                     else:
-                        print("No match found")
+                        continue
                 if len(first_cnc) > 0:
                     print("Connected to: ", first_cnc)
                     device = SerialPort(first_cnc)

@@ -34,9 +34,12 @@ class __MeAuriga(__MegaPi):
     LIGHT_SENSOR_2 = 2
 
     def __init__(self, device=None, BLE=False):
+        print("MeAuriga")
+        print("BLE: ", BLE)
         self._type = _BaseBoard.MeAuriga
+        self.BLE = BLE
         if not device is None:
-            super().__init__(_BaseBoard.MeAuriga, device, BLE)
+            super().__init__(_BaseBoard.MeAuriga, BLE)
 
     def set_color(self, index, red, green, blue):
         return self.rgbled.set_color(index, red, green, blue)

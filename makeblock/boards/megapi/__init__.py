@@ -51,6 +51,7 @@ class __MegaPi(_BaseBoard):
 
     def __init__(self, device=None, BLE=False):
         self._type = _BaseBoard.MegaPi
+        self.BLE = BLE
         if not device is None:
             super().__init__(_BaseBoard.MegaPi, device, BLE)
 
