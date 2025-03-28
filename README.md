@@ -1,11 +1,11 @@
-# Makeblock Library
+# Makeblock Library (with Bluetooth support)
 
 The Makeblock library is a Python package that provides an interface to interact with various Makeblock devices and modules. It includes support for different boards, communication protocols, and modules, allowing users to control and interact with Makeblock hardware using Python.
 
 ## Features
 
 - Support for multiple Makeblock boards, including Halocode, MegaPi, mCore, MeAuriga, and more.
-- Communication with Makeblock devices using SerialPort and mlink.
+- Communication with Makeblock devices using SerialPort, mlink and Bluetooth (using [Jakeler/ble-serial](https://github.com/Jakeler/ble-serial) for the bridge and [paulakg4/com0com](https://github.com/paulakg4/com0com) for the VCOM and null-modem router).
 - Control various modules such as RGB LEDs, motors, sensors, and more.
 - Easy-to-use API for interacting with Makeblock hardware.
 
