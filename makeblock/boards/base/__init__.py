@@ -73,34 +73,38 @@ class _BaseBoard:
                     self._dev = device
                     return self.__setup(self._type, self._dev)
             else:
-                com_ports = get_com_ports_with_devcon()
-                first_cnc = None
-                for port in com_ports:
-                    # Use re.search instead of re.match
-                    result = re.search(r'COM\d+', com_ports[port]["Description"])
-
-                    # Check if a match is found
-                    if result:
-                        first_cnc = result.group()
-                    else:
-                        continue
+                # com_ports = get_com_ports_with_devcon()
+                # first_cnc = None
+                # for port in com_ports:
+                #     # Use re.search instead of re.match
+                #     result = re.search(r'COM\d+', com_ports[port]["Description"])
+                #
+                #     # Check if a match is found
+                #     if result:
+                #         first_cnc = result.group()
+                #     else:
+                #         continue
                 try:
-                    if len(first_cnc) > 0:
-                        print("Connected to: ", first_cnc)
-                        device = SerialPort(first_cnc)
-                        self._dev = device
-                        return self.__setup(self._type, self._dev)
-                except TypeError:
-                    try:
-                        port = [port[0] for port in SerialPort.list() if port[2] != 'n/a' and port[2].find('COM0COM') >= 0]
-                        if len(port) > 0:
-                            port = port[0]
-                            device = SerialPort(port)
-                            self._dev = device
-                            print("Connected to: ", port)
-                            return self.__setup(self._type, self._dev)
-                    except:
-                        raise RuntimeError("\n\nNo VCOM device found. Get one from:\nhttps://github.com/Jakeler/ble-serial")
+                #     if len(first_cnc) > 0:
+                #         print("Connected to: ", first_cnc)
+                #         device = SerialPort(first_cnc)
+                #         self._dev = device
+                #         return self.__setup(self._type, self._dev)
+                # except TypeError:
+                #     try:
+                #         port = [port[0] for port in SerialPort.list() if port[2] != 'n/a' and port[2].find('COM0COM') >= 0]
+                #         if len(port) > 0:
+                #             port = port[0]
+                #             device = SerialPort(port)
+                #             self._dev = device
+                #             print("Connected to: ", port)
+                #             return self.__setup(self._type, self._dev)
+                    device = SerialPort("COM80")
+                    print("Connected to static COM80")
+                    self._dev = device
+                    return self.__setup(self._type, self._dev)
+                except:
+                    raise RuntimeError("\n\nNo VCOM device found. Get one from:\nhttps://github.com/Jakeler/ble-serial")
 
     def add_thread(self, thread):
         makeblock.add_thread(thread)
