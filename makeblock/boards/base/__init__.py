@@ -6,6 +6,7 @@ from ...comm import mlink
 from ...comm.SerialPort import SerialPort
 from time import sleep
 import makeblock
+import platform
 import re
 
 
@@ -99,8 +100,13 @@ class _BaseBoard:
                 #             self._dev = device
                 #             print("Connected to: ", port)
                 #             return self.__setup(self._type, self._dev)
-                    device = SerialPort("COM80")
-                    print("Connected to static COM80")
+                    # Are we on Linux?
+                    if platform.system() == "Linux":
+                        device = SerialPort("/dev/pts/2")
+                        print("Connected to static /dev/pts/2")
+                    else:
+                        device = SerialPort("COM80")
+                        print("Connected to static COM80")
                     self._dev = device
                     return self.__setup(self._type, self._dev)
                 except:
