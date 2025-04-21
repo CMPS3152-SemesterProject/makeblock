@@ -1066,13 +1066,13 @@ class LineFollower(_BaseModule):
         # print(res)
         # Return the parsed response
         if res is not None and len(res) > 1:
-            return bytes2float(res, 1)
-        return -1
+            return res
+        return [2,0,0,0,0]  # Dummy value for 0.0
 
     def get_status(self, port=0):
-        parsed_response = self.read(None, port)
+        response = self.read(None, port)
+        parsed_response = bytes2float(response, 1)
         return parsed_response
-
 
 
 class LimitSwitch(_BaseModule):
