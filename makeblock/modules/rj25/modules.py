@@ -55,6 +55,8 @@ class _BaseModule:
                 sleep(0.001)
                 if timeout < 0:
                     break
+            # print("pack:")
+            # print(bytes2float(self._pack.data, 1))
             return self._pack.data
 
 
@@ -1060,12 +1062,17 @@ class LineFollower(_BaseModule):
         """
         port = port or self._pack.port
         res = super().read([port], callback)
+        # print("LINEFOLLOWER_RES:")
+        # print(res)
+        # Return the parsed response
         if res is not None and len(res) > 1:
-            return res[1]
+            return bytes2float(res, 1)
         return -1
 
     def get_status(self, port=0):
-        return self.read(None, port)
+        parsed_response = self.read(None, port)
+        return parsed_response
+
 
 
 class LimitSwitch(_BaseModule):
